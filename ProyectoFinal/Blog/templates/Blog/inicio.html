@@ -3,5 +3,11 @@
 {% load static %}
 
 {% block Insertar_contenido %}
-Este es el template de inicio
+<h3>Bienvenido a mi Blog!</h3>
+
+{% if mensaje %}
+{{ mensaje }}
+{% endif %}
+
+
 {% endblock %}
