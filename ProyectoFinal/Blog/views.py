@@ -8,10 +8,10 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from Blog.forms import AvatarForm, UserEditionForm
+from Blog.forms import AvatarForm, UserEditionForm, UserRegisterForm
 
 
-
+@login_required
 def mostrar_inicio(request):    
     return render(request,"blog/inicio.html")
 
@@ -100,15 +100,15 @@ class BlogDetail(DetailView):
     model = Articulo
     template_name = "Blog\pages.html" 
 
-class BlogCreate(CreateView):
+class BlogCreate(LoginRequiredMixin,CreateView):
     model = Articulo
     template_name = "Blog\pages.html"
 
-class BlogUpdate(UpdateView):
+class BlogUpdate(LoginRequiredMixin,UpdateView):
     model = Articulo
     template_name = "Blog\pages.html" 
 
-class BlogDelete(DeleteView):
+class BlogDelete(LoginRequiredMixin,DeleteView):
     model = Articulo
     template_name = "Blog\pages.html" 
 
@@ -149,7 +149,7 @@ def login_request(request):
 
 def register(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = UserRegisterForm(request.POST)
         if form.is_valid():
             username_capturado = form.cleaned_data["username"]
             form.save()
@@ -161,6 +161,27 @@ def register(request):
             )
 
     else:
-        form = UserCreationForm()
+        form = UserRegisterForm()
 
     return render(request, "Blog/registro.html", {"form": form})
+
+
+@login_required
+def editar_perfil(request):
+    user=request.user
+    
+    if request.method != "POST":
+        form =UserEditionForm(initial={"email": user.email})
+    else:
+        form= UserEditionForm(request.POST)
+        if form.is_valid():
+            data= form.cleaned_data
+            user.email=data["email"]
+            user.first_name= data["first_name"]
+            user.last_name= data["last_name"]
+            user.set_password(data["password"])
+            user.save()
+            return render(request, "Blog/inicio.html")
+        
+    contexto={ "user": user, "form": form}
+    return render(request, "Blog/editarPerfil.html")

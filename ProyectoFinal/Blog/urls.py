@@ -9,7 +9,7 @@ from Blog.views import (
         mostrar_inicio, mostrar_articulos, mostrar_autores, mostrar_seccion,
         busqueda, buscar, formulario_autor, 
         formulario_articulo, formulario_seccion,
-        MyLogin, login_request, register
+        MyLogin, login_request, register, editar_perfil
 
       )
 
@@ -27,8 +27,9 @@ urlpatterns = [
     path ("busqueda/", busqueda, name="busqueda"),
     path("login/", MyLogin.as_view(), name="login"),
     path("logout/",LogoutView.as_view(template_name="Blog/logout.html"),name="Logout"),
-    path("registro/", register, name="registro")
-
+    path("registro/", register, name="registro"),
+    #editarperfil
+    path("editar-perfil/", editar_perfil, name="EditarPerfil")
 
 
     ]   
