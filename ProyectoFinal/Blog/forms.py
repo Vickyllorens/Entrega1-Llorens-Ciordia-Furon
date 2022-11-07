@@ -12,6 +12,7 @@ class ArticuloFormulario(forms.Form):
     titulo = forms.CharField()
     fecha = forms.DateField()
     texto = forms.Textarea()
+    Imagen = forms.ImageField()
 
 class SeccionFormulario(forms.Form):
     nombre = forms.CharField()

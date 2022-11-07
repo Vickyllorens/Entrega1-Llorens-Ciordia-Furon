@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from Blog.models import Autor, Articulo
+from Blog.models import Autor, Articulo, Avatar
 from Blog.forms import AutorFormulario, ArticuloFormulario, SeccionFormulario
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth import authenticate
@@ -12,8 +12,14 @@ from Blog.forms import AvatarForm, UserEditionForm, UserRegisterForm
 
 
 @login_required
-def mostrar_inicio(request):    
-    return render(request,"blog/inicio.html")
+def mostrar_inicio(request):   
+    avatar=Avatar.objects.filter(user=request.user).first()
+    if avatar is not None:
+        contexto={"avatar": avatar.imagen.url}
+    else:
+        contexto={}
+         
+    return render(request,"blog/inicio.html", contexto)
 
 @login_required
 def mostrar_autores(request):
@@ -32,7 +38,7 @@ def formulario_autor(request):
     if request.method != "POST":
         mi_formulario = AutorFormulario()
     else:
-        mi_formulario = AutorFormulario(request.POST)
+        mi_formulario = AutorFormulario(request.POST, )
         if mi_formulario.is_valid():
             informacion = mi_formulario.cleaned_data
             autor=Autor ( nombre=informacion["nombre"],apellido=informacion["apellido"],profesion=informacion["profesion"])
@@ -46,7 +52,7 @@ def formulario_articulo(request):
     if request.method !="POST":
         return render(request, "blog/formulario_articulo.html")
     
-    articulo = Articulo( titulo=request.POST["titulo"],fecha=request.POST["fecha"],texto=request.POST["texto"])
+    articulo = Articulo( titulo=request.POST["titulo"],fecha=request.POST["fecha"],texto=request.POST["texto"],Imagen=request.FILES["Imagen"])
     articulo.save()
     return render(request,"blog/inicio.html")    
 
@@ -84,9 +90,10 @@ def buscar (request):
 
 def mostrar_articulos (request):  
     articulos = Articulo.objects.all()
-                
+    avatar=Avatar.objects.filter(user=request.user).first()          
     contexto={
              "articulos": articulos,
+             "avatar": avatar.image.url
              }
     return render(request, "blog/articulo.html", contexto)
     
@@ -169,6 +176,7 @@ def register(request):
 @login_required
 def editar_perfil(request):
     user=request.user
+    avatar=Avatar.objects.filter(user=request.user).first()
     
     if request.method != "POST":
         form =UserEditionForm(initial={"email": user.email})
@@ -181,7 +189,25 @@ def editar_perfil(request):
             user.last_name= data["last_name"]
             user.set_password(data["password"])
             user.save()
+            return render(request, "Blog/inicio.html",{"avatar": avatar.imagen.url})
+        
+    contexto={ "user": user,
+              "form": form,
+              "avatar": avatar.imagen.url
+              }
+    return render(request, "Blog/editarPerfil.html")
+
+
+@login_required
+def agregar_avatar (request):
+    if request.method !="POST":
+        form=AvatarForm()
+    else:
+        form= AvatarForm(request.POST,request.FILES)
+        if form.is_valid():
+            Avatar.objects.filter(user=request.user).delete()
+            form.save()
             return render(request, "Blog/inicio.html")
         
-    contexto={ "user": user, "form": form}
-    return render(request, "Blog/editarPerfil.html")
+    contexto={"form": form }
+    return render(request, "Blog/avatar_form.html")

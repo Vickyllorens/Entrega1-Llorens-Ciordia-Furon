@@ -9,7 +9,8 @@ from Blog.views import (
         mostrar_inicio, mostrar_articulos, mostrar_autores, mostrar_seccion,
         busqueda, buscar, formulario_autor, 
         formulario_articulo, formulario_seccion,
-        MyLogin, login_request, register, editar_perfil
+        MyLogin, login_request, register, editar_perfil, agregar_avatar,
+        BlogList, BlogDelete, BlogCreate, BlogUpdate
 
       )
 
@@ -29,7 +30,12 @@ urlpatterns = [
     path("logout/",LogoutView.as_view(template_name="Blog/logout.html"),name="Logout"),
     path("registro/", register, name="registro"),
     #editarperfil
-    path("editar-perfil/", editar_perfil, name="EditarPerfil")
-
+    path("editar-perfil/", editar_perfil, name="EditarPerfil"),
+    path("agregar-avatar/",agregar_avatar, name="AgregarAvatar"),
+    #delete,blbla
+    path("blog/list/",BlogList.as_view(), name="BlogList"),
+    path("blog-nuevo/",BlogCreate.as_view(), name="BlogCreate"),
+    path("editar/<pk>",BlogUpdate.as_view(), name="BlogUpdate"),
+    path("borrar/<pk>", BlogDelete.as_view(), name="BlogDelete")
 
     ]   
